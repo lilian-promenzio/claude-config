@@ -1,0 +1,26 @@
+# Rede de segurança: este repositório guarda só configuração versionável
+# (skills, settings). Nada de credenciais, histórico ou estado de sessão.
+.credentials.json
+*.credentials*
+.env*
+history.jsonl
+settings.local.json
+projects/
+file-history/
+paste-cache/
+session-env/
+sessions/
+shell-snapshots/
+backups/
+cache/
+telemetry/
+ide/
+downloads/
+plans/
+plugins/
+skills/synced/
+
+# Lixo de ferramentas
+__pycache__/
+*.pyc
+.DS_Store

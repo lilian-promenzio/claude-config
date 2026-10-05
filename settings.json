@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)"
+    ]
+  },
+  "effortLevel": "high",
+  "theme": "dark",
+  "agentPushNotifEnabled": true
+}
