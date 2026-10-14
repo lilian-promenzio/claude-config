@@ -5,7 +5,9 @@ Uso: python3 extrair-pptx.py arquivo.pptx [pasta-saida]
 
 Imprime um relatório em Markdown. Cada caixa de texto sai como um bloco
 (`[caixa N]`), na ordem em que está no slide. Formatação relevante:
-negrito `**x**` (vira <strong> no curso), riscado `~~x~~`, realce `==x==`;
+negrito `**x**` (vira <strong> no curso), itálico `*x*` (<em>), sublinhado
+`<u>x</u>`, riscado `~~x~~`, realce `==x==`; caixa alta aplicada por estilo
+sai já em maiúsculas (como aparece no slide);
 quebras de linha viram ` / `.
 
 Imagens são classificadas pelo tamanho no slide:
@@ -41,39 +43,63 @@ NS_REL = "{http://schemas.openxmlformats.org/package/2006/relationships}"
 LIMIAR_PRINT = 0.35
 
 
-def trecho(run):
-	"""Texto de um <a:r>, marcando negrito, riscado e realce."""
-	texto = "".join(t.text or "" for t in run.iter(f"{NS_A}t"))
+def estilo(run):
+	"""Formatação de um <a:r>: marcas (da mais interna para a externa) e caixa alta."""
 	rpr = run.find(f"{NS_A}rPr")
-	if not texto.strip() or rpr is None:
-		return texto
-	nucleo = texto.strip()
+	if rpr is None:
+		return ((), False)
+	marcas = []
+	if rpr.get("i") == "1":
+		marcas.append(("*", "*"))
 	if rpr.get("b") == "1":
-		nucleo = f"**{nucleo}**"
+		marcas.append(("**", "**"))
+	if rpr.get("u", "none") != "none":
+		marcas.append(("<u>", "</u>"))
 	if rpr.get("strike", "noStrike") != "noStrike":
-		nucleo = f"~~{nucleo}~~"
+		marcas.append(("~~", "~~"))
 	if rpr.find(f"{NS_A}highlight") is not None:
-		nucleo = f"=={nucleo}=="
-	# Devolve os espaços das bordas fora da marcação.
+		marcas.append(("==", "=="))
+	return (tuple(marcas), rpr.get("cap") == "all")
+
+
+def marcar(texto, marcas):
+	"""Aplica as marcas ao texto, deixando os espaços das bordas de fora."""
+	nucleo = texto.strip()
+	if not nucleo or not marcas:
+		return texto
+	for abre, fecha in marcas:
+		nucleo = f"{abre}{nucleo}{fecha}"
 	ini = texto[: len(texto) - len(texto.lstrip())]
 	fim = texto[len(texto.rstrip()) :]
 	return f"{ini}{nucleo}{fim}"
 
 
 def paragrafos(raiz):
-	"""Texto de cada parágrafo <a:p>, ignorando vazios."""
+	"""Texto de cada parágrafo <a:p>, ignorando vazios.
+
+	Trechos vizinhos com a mesma formatação são unidos antes de marcar
+	("**a** **b**" sai "**a b**"). Caixa alta aplicada por estilo (cap="all",
+	texto digitado em minúsculas) sai já em maiúsculas, como aparece no slide.
+	"""
 	saida = []
 	for p in raiz.iter(f"{NS_A}p"):
-		partes = []
+		blocos = []  # [marcas, texto]
 		for el in p:
 			if el.tag in (f"{NS_A}r", f"{NS_A}fld"):
-				partes.append(trecho(el))
+				texto = "".join(t.text or "" for t in el.iter(f"{NS_A}t"))
+				marcas, caps = estilo(el)
+				if caps:
+					texto = texto.upper()
+				# espaço puro não quebra a sequência de um mesmo estilo
+				if blocos and (blocos[-1][0] == marcas or not texto.strip()):
+					blocos[-1][1] += texto
+					continue
+				blocos.append([marcas, texto])
 			elif el.tag == f"{NS_A}br":
-				partes.append(" / ")
-		texto = re.sub(r"\s+", " ", "".join(partes))
-		texto = re.sub(r"\s/(\s*/)+\s", " / ", texto)
-		# Junta negritos vizinhos: "**a** **b**" -> "**a b**".
-		texto = re.sub(r"\*\*(\s*)\*\*", r"\1", texto).strip(" /")
+				blocos.append([(), " / "])
+		texto = "".join(marcar(t, m) for m, t in blocos)
+		texto = re.sub(r"\s+", " ", texto)
+		texto = re.sub(r"\s/(\s*/)+\s", " / ", texto).strip(" /")
 		if texto:
 			saida.append(texto)
 	return saida

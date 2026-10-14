@@ -59,7 +59,8 @@ texto antigo, o que cada marcação significa, armadilhas já vistas).
 Leia o arquivo de duas formas; nenhuma basta sozinha:
 
 1. **Relatório do extrator** — caixas de texto por slide (com negrito
-   `**x**`, riscado `~~x~~`, realce `==x==`), imagens classificadas
+   `**x**`, itálico `*x*`, sublinhado `<u>x</u>`, riscado `~~x~~`, realce
+   `==x==`; caixa alta de estilo já em maiúsculas), imagens classificadas
    (`print da tela` × `referência`, e em qual caixa a referência está),
    notas e comentários:
 
@@ -135,6 +136,9 @@ Itens pendentes não bloqueiam os demais.
   `grep -n "trecho" src/assets/locales/pt-BR.json`; depois
   `grep -rn "chave" src/` para achar a seção. Se não achar, encurte o
   trecho — o print pode ter quebras ou pequenas diferenças.
+- Nem todo curso guarda os textos no `pt-BR.json` (ex.: simuladores com
+  HTML em template strings em `src/composables/*-data.ts`). Se não houver
+  locale ou o `grep` nele não achar nada, faça `grep -rn` em `src/`.
 - Por número: "módulo 2, seção 5" → `src/views/modulo-2/secao-5.vue`,
   id `m02s5`, chaves `m02-s05-*` (confira o padrão de chaves do projeto).
 - Por imagem: identifique o asset na seção já localizada (imports no
@@ -187,6 +191,14 @@ por `import` no `.vue`/`.ts`.
 
 ### Com o arquivo entregue
 
+Os assets podem chegar **soltos ao lado do arquivo de ajustes** (ex.: em
+`tmp/`, com o mesmo horário de modificação), já com o **mesmo nome** do
+arquivo em `src/assets/` — nesse caso é sobrescrita. Confira se o asset
+alvo de cada slide é mesmo o que veio: uma imagem composta (personagem
+sobre fundo) pode não ter vindo, mesmo que a versão recortada do
+personagem tenha. Arquivos entregues com o mesmo nome de um asset do curso
+mas não marcados em nenhum slide podem ser aplicados, com ⚠️.
+
 1. Ache onde o asset atual é usado: `grep -rn "nome-do-arquivo" src/`.
 2. Olhe o asset atual e o novo (Read na imagem) para confirmar que é a troca
    certa e se a proporção mudou — se mudou a ponto de exigir rearranjo,
@@ -221,8 +233,17 @@ por `import` no `.vue`/`.ts`.
     falha enquanto algum estiver em uso — o que impede publicar com
     placeholder. Informe no resumo em qualquer caso.
 
-Ajuste no conteúdo de um PDF (caderno, anexo) = PDF novo a ser entregue
-pelo design; não há o que mudar no código até lá.
+### Anexos e PDFs
+
+- **Anexo novo a linkar**: copie o arquivo para `src/assets/anexos/` (ou
+  onde o projeto guardar anexos) e siga o padrão de link já existente. Se
+  ele chegar em formato diferente do citado no ajuste (ex.: pedido
+  `.docx`, entregue `.pdf` com o mesmo nome), confirme qual usar.
+- **Ajuste no conteúdo de um PDF** (caderno, anexo) = PDF novo a ser
+  entregue pelo design; não há o que mudar no código até lá. Antes de
+  marcar ❓, veja se o PDF novo já veio junto com o arquivo de ajustes
+  (confira com `pdftotext` se ele já traz o texto pedido) — se veio, é
+  troca de asset.
 
 ## 6. Mudança de layout
 

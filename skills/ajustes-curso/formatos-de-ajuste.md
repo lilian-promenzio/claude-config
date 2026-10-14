@@ -8,30 +8,31 @@ exemplo real.
 
 ---
 
-## Modelo A — prints anotados com caixas amarelas
+## Modelo A — prints anotados com caixas de comentário
 
-Origem: Claro — Trilha de Melhoria Contínua (`clientes/claro/trilha-da-qualidade/multipage/tmp/ajustes.pptx`, ajustes do módulo 2, out/2026).
+Origem: Claro (Trilha de Melhoria Contínua e Trilha Funcional), out/2026.
 
 ### Como identificar
 
 - Cada slide é **um print de tela do curso** (ocupando quase todo o slide)
-  com **caixas amarelas** por cima.
+  com **caixas coloridas** por cima — amarelas, vermelhas ou as duas no
+  mesmo arquivo. A cor não muda o significado.
 - Cada caixa começa com um **verbo em negrito**: `SUBSTITUIR`, `INCLUIR`,
-  `EXCLUIR` — às vezes com complemento (`SUBSTITUIR imagem e título`,
-  `SUBSTITUIR os feeds do Medidor`, `INCLUIR como no 1º módulo o botão da
-  Receita`).
-- Uma **linha tracejada** liga a caixa a um **retângulo tracejado** no
-  print, que marca o alvo.
+  `EXCLUIR`, `AJUSTAR` — às vezes com complemento (`SUBSTITUIR imagem e
+  título`, `SUBSTITUIR os feeds do Medidor`, `INCLUIR como no 1º módulo o
+  botão da Receita`).
+- Uma **linha tracejada** liga a caixa a um **retângulo tracejado** (da
+  mesma cor) no print, que marca o alvo.
 - O arquivo não diz módulo nem seção: descubra pelo print (banner do
-  módulo, títulos) e por `grep` no `pt-BR.json`. Os slides seguem a ordem
-  do curso.
+  módulo, títulos, contador de telas como "N/14") e por `grep` no
+  código. Os slides seguem a ordem do curso.
 
 ### Onde está o "antes" e o "depois"
 
 - **Antes**: o trecho dentro do retângulo tracejado, **visível só no
-  print** — o extrator não o captura. Leia-o no PDF renderizado e ache a
-  chave com `grep` de um pedaço distintivo da frase.
-- **Depois**: o texto da caixa amarela (vem no relatório do extrator, com
+  print** — o extrator não o captura. Leia-o no PDF renderizado e ache-o
+  com `grep` de um pedaço distintivo da frase.
+- **Depois**: o texto da caixa (vem no relatório do extrator, com
   negrito marcado).
 - Os retângulos tracejados não têm texto; associe caixa ↔ alvo pela linha
   tracejada no visual.
@@ -44,12 +45,15 @@ Origem: Claro — Trilha de Melhoria Contínua (`clientes/claro/trilha-da-qualid
 | `SUBSTITUIR` + texto curto | palavra no meio da frase | troca a palavra (ex.: "Ação" → "Aperfeiçoamento") | simples |
 | `SUBSTITUIR` + texto | parágrafo(s) inteiro(s) | troca o bloco todo | simples |
 | `SUBSTITUIR imagem…` | imagem/ícone | troca de asset — ver regras de asset | simples se o asset vier entregue; senão ❓ |
+| `AJUSTAR imagem` + fala do cliente entre aspas ("os pins não estão nítidos") | imagem | troca de asset; a fala só explica o motivo | simples se o asset vier entregue; senão ❓ |
 | `EXCLUIR` | trecho de texto | apaga o trecho e acerta espaços/pontuação | simples |
 | `EXCLUIR` | seção/bloco inteiro | remove bloco ou seção | estrutural |
+| `EXCLUIR a possibilidade do aluno digitar e SUBSTITUIR textos` | caixa de digitação | campo vira texto de exemplo fixo (muda componente e `store.ts`) | estrutural |
 | `INCLUIR` + texto | área vazia entre blocos | conteúdo novo (bloco ou seção nova) | estrutural |
 | `INCLUIR` imagem | espaço vazio dentro de um bloco | muda o layout + imagem (placeholder) | estrutural |
+| `INCLUIR texto e link (arquivo.docx)` | área vazia | texto novo com link para o anexo entre parênteses; o trecho sublinhado ("Clique aqui") é a âncora — ver anexos no `SKILL.md` | estrutural |
 | `INCLUIR como no módulo N…` | — | reaproveitar o padrão daquele módulo (ache-o e copie) | estrutural (plano curto) |
-| qualquer | print de um PDF (caderno) | o ajuste é no **arquivo PDF**, não no código | ❓ pendente: PDF novo a ser entregue |
+| qualquer | print de um PDF (barra do Acrobat/Edge no topo) | o ajuste é no **arquivo PDF** do caderno, não no código | ❓ pendente, salvo se o PDF novo já veio |
 
 ### Armadilhas observadas
 
