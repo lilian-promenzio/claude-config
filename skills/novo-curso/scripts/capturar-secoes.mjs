@@ -5,18 +5,25 @@
 // `npm i playwright`; copie este arquivo para lá):
 //   node capturar-secoes.mjs <url> <pasta-saida> [larguras] [seletor]
 //   node capturar-secoes.mjs "http://localhost:5173/?liberar" ./capturas 1280,390
+//   node capturar-secoes.mjs "http://localhost:5173/?liberar" ./capturas 1280 --abrir "Módulo 2"
 //
 // - Use ?liberar para todas as seções estarem visíveis.
 // - Rolagem: uma captura por seção (id mNNsM) em cada largura.
 // - Tela a tela (detectado sozinho): janela do tamanho do canvas (escala 1),
 //   uma captura por tela, avançando pelo botão; larguras ignoradas.
+// - --abrir "<texto>": clica no botão com esse texto antes de capturar (ex.:
+//   o card de um módulo no menu de módulos). Seletor padrão passa a ser o
+//   das seções do módulo aberto.
 // - Saída: <pasta>/<largura ou "telas">/<id>.png. Animações de entrada
 //   desligadas (prefers-reduced-motion; AOS nos cursos antigos).
 // - CHROME: usa /usr/bin/google-chrome se existir (sem `npx playwright install`).
 import { existsSync, mkdirSync } from "node:fs";
 import { chromium } from "playwright";
 
-const [url, saida, larguras = "1280,390", seletor = '[id^="m0"][id*="s"]'] = process.argv.slice(2);
+const argumentos = process.argv.slice(2);
+const posicaoAbrir = argumentos.indexOf("--abrir");
+const abrirTexto = posicaoAbrir >= 0 ? argumentos.splice(posicaoAbrir, 2)[1] : undefined;
+const [url, saida, larguras = "1280,390", seletor = '[id^="m0"][id*="s"]'] = argumentos;
 if (!url || !saida) {
 	console.error("uso: node capturar-secoes.mjs <url> <pasta-saida> [larguras] [seletor]");
 	process.exit(1);
@@ -39,6 +46,15 @@ async function abrir(viewport) {
 	await page.addStyleTag({
 		content: "[data-aos]{opacity:1!important;transform:none!important;transition:none!important}",
 	});
+	if (abrirTexto) {
+		await page.getByRole("button", { name: abrirTexto }).first().click();
+		// transição de módulo: pula o vídeo, se houver, e espera a animação
+		await page.waitForTimeout(1500);
+		const pular = page.getByRole("button", { name: /pular/i });
+		if (await pular.count()) await pular.first().click();
+		await page.waitForTimeout(2500);
+		await page.waitForLoadState("networkidle");
+	}
 	return page;
 }
 
@@ -71,7 +87,10 @@ async function capturarTelas(page) {
 async function capturarRolagem(page, largura) {
 	const pasta = `${saida}/${largura}`;
 	mkdirSync(pasta, { recursive: true });
-	const ids = await page.$$eval(seletor, (els) => els.map((el) => el.id));
+	// Só as seções visíveis (travadas ficam ocultas sem ?liberar)
+	const ids = await page.$$eval(seletor, (els) =>
+		els.filter((el) => el.checkVisibility() && el.offsetHeight > 0).map((el) => el.id),
+	);
 	for (const id of ids) {
 		const el = page.locator(`[id="${id}"]`);
 		await el.scrollIntoViewIfNeeded();
