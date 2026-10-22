@@ -64,7 +64,21 @@ curso EBANX LD/FT (`clientes/insight/ebanx/compliance`).
 - [ ] Texto de fechamento "solto" no layout (fonte maior, negrito) não é
   caixa. [EBANX 2026-10]
 - [ ] Elementos decorativos (listras, faixas) nunca ficam sob o texto, em
-  nenhuma largura.
+  nenhuma largura. Medir no navegador: utilitários de padding
+  podem perder para o padding do `.container`. [EBANX 2026-10]
+- [ ] Aberturas com imagem sobre faixa de cor: conferir quanto a imagem passa
+  da faixa (EBANX: vaza levemente; na capa, a faixa vai só até o meio).
+  Medidas de posição feitas em JS devem usar `offsetTop/offsetHeight`, não
+  `getBoundingClientRect`, que inclui o deslocamento das animações de
+  entrada. [EBANX 2026-10]
+
+## CSS
+
+- [ ] Utilitários do template funcionam sem `!` (ex.: `mt-10` num `<p>`
+  depois de outro `<p>`). Se precisar de `!`, alguma regra global está fora
+  de `@layer`. [EBANX 2026-10: espaçamento entre textos ignorava os
+  utilitários; container perdia a largura ao entrar em camada, porque o
+  Tailwind v4 tem o próprio `container`]
 
 ## Texto (fidelidade ao roteiro)
 
@@ -91,10 +105,30 @@ curso EBANX LD/FT (`clientes/insight/ebanx/compliance`).
 - [ ] Botões que o layout não desenha (confirmar, avançar) são discretos e
   coerentes com o restante — não um botão grande e chamativo. [EBANX 2026-10]
 - [ ] Vídeo/áudio: trava só após assistir/ouvir até o fim, se o roteiro pedir.
+- [ ] Indicador de clique (mãozinha) visível por inteiro, sem ficar sob o
+  item seguinte, em acordeões, flip cards e listas, no desktop e no celular.
+  Itens com `position` + `z-index`, `transform` ou `perspective` criam
+  contexto de empilhamento: o z-index precisa estar no item (ou no container
+  dele) que tem o indicador. Conferir visualmente: a mão é um pseudo-elemento
+  com `pointer-events: none`, então `elementFromPoint` não detecta o problema.
+  [EBANX 2026-10]
+- [ ] A última seção, se for curta, não tem animação de entrada
+  (`v-entrada`; `data-aos` nos cursos antigos): no fim da página ela pode
+  nunca alcançar o ponto de disparo e fica vazia. Testar rolando até o fim, sem desligar as animações. [EBANX
+  2026-10]
+
+## Tela a tela
+
+- [ ] Cada tela cabe em 1280 × 720 sem corte (em dev, o console avisa qual
+  tela passa da altura).
+- [ ] Sem `sm:`/`md:`/`lg:` nem `vh` dentro das telas: o canvas é fixo e
+  escalado, eles leem a janela.
+- [ ] Telas com interação: o "avançar" fica bloqueado até concluir, e a
+  dica aparece; telas sem interação liberam após o tempo de leitura.
 
 ## Responsividade e acessibilidade
 
-- [ ] 390px: sem rolagem horizontal; ícones e títulos lado a lado não
+- [ ] (rolagem) 390px: sem rolagem horizontal; ícones e títulos lado a lado não
   espremem o texto (reduzir o ícone no celular).
 - [ ] Foco visível em todos os controles; interações por teclado.
 - [ ] Ilustração com personagem tem `alt` descritivo; decorativa `alt=""`.
