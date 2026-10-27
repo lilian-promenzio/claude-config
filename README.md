@@ -10,6 +10,7 @@ settings.
 | `settings.json` | Preferências globais (tema, nível de esforço, notificações) e permissões genéricas. |
 | `skills/ajustes-curso/` | Aplica ajustes de cliente/revisão em cursos Plural (Vue + SCORM) a partir de um `.pptx` de ajustes. Inclui o extrator de pptx e o catálogo de formatos de arquivo de ajustes. |
 | `skills/novo-curso/` | Cria um curso Plural novo a partir de roteiro, layout, branding e assets, usando um projeto de referência. Inclui o extrator de roteiro (formatação em HTML), o script de capturas por seção e o checklist de lições de layout. |
+| `skills/componente-plural/` | Cria ou altera um componente da `plural/` da base (convenções, catálogo, CHANGELOG, versão, verificação) e leva para a base uma lacuna encontrada num curso. |
 | `agents/revisor-convencoes.md` | Agente que revisa (só lendo) código de projetos Plural contra a `CONVENCOES.md` e o `CLAUDE.md` e devolve pontos com arquivo e linha. |
 
 ## Instalação
