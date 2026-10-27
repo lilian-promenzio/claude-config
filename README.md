@@ -10,6 +10,7 @@ settings.
 | `settings.json` | Preferências globais (tema, nível de esforço, notificações) e permissões genéricas. |
 | `skills/ajustes-curso/` | Aplica ajustes de cliente/revisão em cursos Plural (Vue + SCORM) a partir de um `.pptx` de ajustes. Inclui o extrator de pptx e o catálogo de formatos de arquivo de ajustes. |
 | `skills/novo-curso/` | Cria um curso Plural novo a partir de roteiro, layout, branding e assets, usando um projeto de referência. Inclui o extrator de roteiro (formatação em HTML), o script de capturas por seção e o checklist de lições de layout. |
+| `agents/revisor-convencoes.md` | Agente que revisa (só lendo) código de projetos Plural contra a `CONVENCOES.md` e o `CLAUDE.md` e devolve pontos com arquivo e linha. |
 
 ## Instalação
 
@@ -18,8 +19,8 @@ git clone <url-deste-repo> ~/Projetos/claude-config
 ~/Projetos/claude-config/instalar.sh
 ```
 
-O script cria links simbólicos de `~/.claude/settings.json` e
-`~/.claude/skills/<skill>` para este repositório. O que já existir no lugar
+O script cria links simbólicos de `~/.claude/settings.json`,
+`~/.claude/skills/<skill>` e `~/.claude/agents/<agente>.md` para este repositório. O que já existir no lugar
 é movido para `~/.claude/backups/claude-config-<data>/`. Pode ser rodado de
 novo sem problema.
 

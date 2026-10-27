@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Liga as configurações deste repositório ao ~/.claude por links simbólicos.
 # Pode ser rodado de novo a qualquer momento (ex.: após adicionar uma skill
-# ou se algum link tiver sido substituído por arquivo comum).
+# ou um agente, ou se algum link tiver sido substituído por arquivo comum).
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -34,6 +34,11 @@ ligar "$REPO/settings.json" "$CLAUDE_DIR/settings.json"
 for skill in "$REPO"/skills/*/; do
 	skill="${skill%/}"
 	ligar "$skill" "$CLAUDE_DIR/skills/$(basename "$skill")"
+done
+
+for agente in "$REPO"/agents/*.md; do
+	[ -e "$agente" ] || continue
+	ligar "$agente" "$CLAUDE_DIR/agents/$(basename "$agente")"
 done
 
 [ -d "$BACKUP" ] && echo "Backup do que foi substituído: $BACKUP"
