@@ -23,7 +23,7 @@ não forem óbvias).
 | 3 | Travas: cada interação trava o resto / só entre módulos / livre | `travas` | `"linear"` |
 | 4 | Transição ao entrar num módulo: nenhuma / animação / vídeo (pode pular?) | `transicaoModulo` | `false` |
 | 5 | (rolagem) Header fixo? Com título? Com progresso? | `header` | `false` |
-| 6 | (rolagem) Menu: nenhum / lateral / flutuante; itens por tema ou por seção; com progresso | `menu` | `false` |
+| 6 | (rolagem) Menu: o da base (nenhum / lateral / flutuante; itens por tema ou por seção; com progresso; lateral começa aberto?) ou um menu próprio do cliente (`menu: false` + componente no curso)? | `menu` | `false` |
 | 7 | (rolagem) Aviso "role a página" após inatividade? | `instrucaoRolagem` | `false` |
 | 8 | (telas) Menu de salto no header? Setas do teclado? Tempo de leitura? | `telas.*` | sem menu, com setas, 3 s |
 | 9 | Menu de acessibilidade? VLibras? | `acessibilidade` | menu sim, VLibras não |
