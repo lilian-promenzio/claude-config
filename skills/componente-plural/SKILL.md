@@ -29,9 +29,8 @@ contornado) e faça a versão genérica na base com esta skill.
 
 ## 2. Antes de escrever
 
-- Procure algo parecido no `?catalogo` e no
-  `docs/construcao/INVENTARIO.md` (se ainda existir): estender um componente
-  é melhor que criar outro.
+- Procure algo parecido no `?catalogo`: estender um componente é melhor
+  que criar outro.
 - Vindo de um curso: leia o componente de lá **inteiro** (inclusive os
   ajustes já feitos com o cliente) e separe o que é identidade (cores,
   imagens, textos, layout do cliente) do que é comportamento genérico. Só o

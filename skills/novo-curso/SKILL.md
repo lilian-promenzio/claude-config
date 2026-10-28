@@ -173,6 +173,10 @@ node capturar-secoes.mjs "http://localhost:<porta>/?liberar" <scratchpad>/captur
 - Teclado e leitor de tela: foco visível, interações operáveis por teclado,
   `alt` nas ilustrações com personagem, decorativas com `alt=""`.
 
+Antes de entregar, chame o agente `verificar-curso` no curso (com o
+caminho do layout): ele refaz tudo isso num contexto separado e devolve
+só o relatório. Corrija o que ele apontar.
+
 ## 7. Entregar
 
 Relatório final ao usuário:

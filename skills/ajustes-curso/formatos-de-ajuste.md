@@ -83,3 +83,14 @@ Origem: Claro (Trilha de Melhoria Contínua e Trilha Funcional), out/2026.
   e-mail … dia 01/10") são rastreabilidade: cite no resumo, não no curso.
 - **Link externo** numa caixa (ex.: URL de receita) é o `href` do botão a
   criar/alterar.
+
+### Variante: retângulos vermelhos + caixa "Colocar as palavras marcadas em negrito"
+
+Origem: VIBRA 01 (out/2026). Prints com **retângulos vermelhos finos** em
+volta de palavras e uma caixa azul fixa ao lado ("Colocar as palavras
+marcadas em negrito"): cada retângulo é um trecho a pôr em `<strong>` — só
+visível no PDF. Caixas amarelas sobre o print trazem o texto novo (o
+extrator pega). Slides com "Mudar o formato do exercício para este" trazem
+um wireframe de referência (códigos tipo `código-014-009`) e o conteúdo no
+slide seguinte. Links das caixas ("01.3 - LUBRAX", OneDrive) apontam para
+assets do cliente; o asset costuma vir solto em `tmp/`.

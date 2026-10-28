@@ -1,6 +1,6 @@
 ---
 name: ajustes-curso
-description: Aplica ajustes pedidos pelo cliente ou pela revisão em cursos e-learning da Plural (template Vue + SCORM com módulos/seções, `secoes.ts`, `store.ts`, `pt-BR.json`) — correções de texto, troca de assets (imagens, vídeos, áudios, PDFs), mudanças de layout e adição/remoção/reordenação de seções. Use quando receber um arquivo de ajustes (geralmente .pptx), uma lista de ajustes, um apontamento de revisão ("no slide X trocar…", "corrigir texto da seção…", "tirar a seção…", "incluir uma tela…") ou um asset novo para substituir.
+description: Aplica ajustes pedidos pelo cliente ou pela revisão em cursos e-learning da Plural (feitos da plural-curso-base ou anteriores a ela: Vue + SCORM com `secoes.ts`, `store.ts`, `pt-BR.json`) — correções de texto, troca de assets (imagens, vídeos, áudios, PDFs), mudanças de layout e adição/remoção/reordenação de seções. Use quando receber um arquivo de ajustes (geralmente .pptx), uma lista de ajustes, um apontamento de revisão ("no slide X trocar…", "corrigir texto da seção…", "tirar a seção…", "incluir uma tela…") ou um asset novo para substituir.
 argument-hint: "[arquivo-de-ajustes.pptx]"
 ---
 
@@ -25,29 +25,38 @@ Arquivos de apoio desta skill (em `~/.claude/skills/ajustes-curso/`):
 
 ## 0. Conhecer o projeto
 
-Esta skill serve a vários cursos do mesmo template Plural, mas cada um tem
-suas particularidades. Antes de mexer:
+Esta skill serve a vários cursos Plural. Antes de mexer:
 
-1. Leia o `CLAUDE.md` (e o `README.md`, se houver) do projeto. **O que estiver
-   lá prevalece sobre este roteiro** — componentes próprios, regras de
-   espaçamento, convenções de chaves, módulos ainda placeholder etc.
-2. Confirme a estrutura esperada e adapte os caminhos se forem outros:
-   - `src/config/secoes.ts` — seções por módulo, trava/conclusão
-   - `src/config/store.ts` — schema Zod do `suspend_data`
-   - `src/config/modulos.ts`, `src/config/app-definition.ts` (`versao`)
-   - `src/assets/locales/pt-BR.json` — todos os textos
-   - `src/views/modulo-N/secao-M.vue` — uma seção por arquivo
-   - `src/components/` (do curso) e `src/plural/` (biblioteca compartilhada
-     — estender, não fazer fork)
-3. Veja se há **catálogo** de modelos de seção/componentes (ex.:
-   `src/views/catalogo/`, rota `/?catalogo` em dev) e **conquistas**
-   (`src/config/conquistas.ts`).
-4. Veja os scripts do `package.json` (build, lint, lint:css) — serão usados
-   na verificação.
-
-Se o projeto não seguir esse template (não houver `secoes.ts`/`store.ts`),
-aplique as mesmas etapas — ler, mapear, classificar, aplicar, verificar,
-retornar — adaptando os passos técnicos ao que o projeto usa.
+1. Leia o `CLAUDE.md` (e o `README.md`) do curso. **O que estiver lá
+   prevalece sobre este roteiro** — componentes próprios, regras de
+   espaçamento, convenções de chaves.
+2. Veja se o curso foi **feito da `plural-curso-base`** (seção "Origin" do
+   `CLAUDE.md`, `src/plural/versao.ts`, `src/config/definicao-curso.ts`).
+   A maioria dos passos abaixo segue essa estrutura:
+   - `src/config/definicao-curso.ts` — rolagem ou tela a tela, menu,
+     travas, conclusão; `versao` (mudar zera o progresso em dev). Leia por
+     `definicaoCurso()`; referência em `DEFINICAO-CURSO.md`.
+   - `src/config/secoes.ts` — `montarSecoes("m01", [[Componente,
+     concluida, opções], …])`: ids (`m01s1`…) e desbloqueio sequencial
+     gerados pela posição; `menu: { titulo }` marca item do menu.
+   - `src/config/store.ts` — schema Zod do `suspendData`.
+   - `src/config/modulos.ts`, `modulos-ids.ts` — módulos.
+   - `src/assets/locales/pt-BR.json` — textos (`m01-s02-…`).
+   - `src/views/modulo-N/secao-M.vue` — uma seção por arquivo.
+   - `src/components/` — wrappers `App*` e componentes do curso.
+   - `src/plural/` e `src/core/` — **não editar** (vêm da base). Se faltar
+     algo genérico, resolva no curso e registre a lacuna para a base
+     (skill `componente-plural`).
+   - `docs/guia-conteudo.md` (seção e módulo novos) e
+     `docs/guia-wrapper-app.md`; o `?catalogo` em dev mostra cada
+     componente com props, variáveis e schema do `suspendData`.
+3. **Curso anterior à base** (sem `definicao-curso.ts`/`montarSecoes`,
+   com `app-definition.ts`, AOS, tuplas `mNNConcluidas`): aplique as mesmas
+   etapas — ler, mapear, classificar, aplicar, verificar, retornar — com os
+   caminhos e padrões que o curso usa; as notas "curso antigo" abaixo
+   ajudam.
+4. Veja os scripts do `package.json` (typecheck, lint, lint:css, build,
+   build:validacao) — serão usados na verificação.
 
 ## 1. Ler o arquivo de ajustes (.pptx)
 
@@ -173,7 +182,7 @@ locales que o projeto tiver — ajuste todos os que existirem).
 - Textos fixos no `.vue` (fora do JSON) são exceção: mova-os para o JSON
   seguindo o padrão de chaves do projeto.
 - Lembre dos textos fora das seções: títulos do menu de seções
-  (`menuTitle`), dicas/popovers definidos em `secoes.ts`, títulos de
+  (`menu: { titulo }` em `secoes.ts`; curso antigo: `menuTitle`), dicas/popovers definidos em `secoes.ts`, títulos de
   conquistas, alt texts.
 - Mantenha aspas tipográficas, travessões e acentuação do texto recebido.
   Não "melhore" o texto além do que foi pedido; se notar outro erro,
@@ -247,36 +256,45 @@ mas não marcados em nenhum slide podem ser aplicados, com ⚠️.
 
 ## 6. Mudança de layout
 
-1. Se houver catálogo, consulte-o e veja se o layout pedido já existe em
-   outra seção; se não houver, procure uma seção parecida no próprio curso
-   (`grep` por componentes). Copie o padrão existente.
-2. Use os componentes do curso (`src/components/`) e da biblioteca
-   (`src/plural/`) em vez de classes soltas; não faça fork de `src/plural/`.
-3. Siga o tema do projeto (cores semânticas do Tailwind, classes de
-   título, wrappers de seção) e as regras de espaçamento do `CLAUDE.md`/
-   `README.md`.
-4. Garanta responsividade (mobile ao desktop) e mantenha as animações
-   (`data-aos` etc.) coerentes com as seções vizinhas.
-5. Se o ajuste trocar o **tipo de interação** de uma seção (ex.: abas →
+1. Procure o layout pedido no `?catalogo` e em seções parecidas do próprio
+   curso (`grep` por componentes). Use os blocos `PluralLayout*` e os
+   componentes da `plural/` e de `src/components/`; não escreva layout com
+   classes soltas quando houver bloco pronto.
+2. Identidade só por variáveis CSS (no wrapper `App*` ou na seção) e
+   tokens do tema (`bg-primary`, `rounded-caixa`…); nada de cor solta nem
+   `:deep()` em `components/` (o lint barra).
+3. Rolagem: confira celular (390) e desktop. **Tela a tela**: cada tela
+   cabe em 1280 × 720, sem `sm:`/`md:`/`lg:` nem unidades de viewport
+   (o layout quebra por `@container`); exercícios apertados →
+   `plural-exercicio-compacto`.
+4. Animações de entrada pelo `v-entrada` (curso antigo: `data-aos`),
+   coerentes com as seções vizinhas.
+5. Botões que navegam (ir para o exercício, começar):
+   `useNavegacaoCurso()` (`avancar()`, `irParaSecao("m01s4")`).
+6. Se o ajuste trocar o **tipo de interação** de uma seção (ex.: abas →
    flip cards, ou estática → interativa), trate também a persistência como
-   na seção 7 (schema/initial em `store.ts`, conclusão em `secoes.ts`,
+   na seção 7 (schema em `store.ts`, conclusão em `secoes.ts`,
    `exibeTrava`).
-6. Se criar um layout ou componente novo e o projeto tiver catálogo,
-   registre-o lá.
+7. Componente novo: genérico → base (skill `componente-plural`), contornando
+   no curso enquanto isso; só do curso → `src/components/`.
 
 ## 7. Adicionar, remover ou reordenar seções
 
-Cada seção mexe em vários lugares ao mesmo tempo:
+Cada seção mexe em vários lugares ao mesmo tempo (passo a passo no
+`docs/guia-conteudo.md` do curso):
 
 | Onde | O quê |
 | ---- | ----- |
 | `src/views/modulo-N/secao-M.vue` | o conteúdo |
-| `src/config/secoes.ts` | import, entrada na lista do módulo (`id`, `componente`, `exibeTrava`, `menuTitle`…), e a lógica de `desbloqueada`/`concluida` (no padrão com tupla `mNNConcluidas` + `acumulaDesbloqueio`: posição na tupla, tipo da tupla e índices) |
-| `src/config/store.ts` | chave da seção no schema **e** no `initial` (só seções interativas) |
+| `src/config/secoes.ts` | import e entrada `[Componente, concluida, opções]` na posição certa da lista do `montarSecoes` (o id e o desbloqueio vêm da posição); `menu: { titulo }` se iniciar item do menu |
+| `src/config/store.ts` | chave da seção no schema e no padrão (só seções interativas) |
 | `src/assets/locales/pt-BR.json` | chaves da seção |
-| conquistas (`conquistas.ts` + `store.ts`) | se a seção for de recompensa |
-| catálogo | referências à seção, se houver |
-| `CLAUDE.md` | contagens/estado do módulo, se documentados |
+| `irParaSecao("mNNsM")` e links | ids citados em outras seções |
+| `README.md` | mapa das seções |
+
+Curso antigo: entrada com `id`/`menuTitle` e lógica de `desbloqueada`/
+`concluida` (tupla `mNNConcluidas` + `acumulaDesbloqueio`: posição, tipo da
+tupla e índices); conquistas (`conquistas.ts` + `store.ts`).
 
 ### Numeração
 
@@ -296,8 +314,8 @@ adicionar chave nova, mudar tipo ou tamanho de tupla, ou renumerar chaves
 invalida o progresso salvo (ou o atribui à seção errada).
 
 - Se o curso **ainda não foi publicado** no LMS, renumere livremente e
-  aumente `versao` em `app-definition.ts` para limpar o `localStorage` de
-  quem está testando.
+  aumente `versao` em `definicao-curso.ts` (curso antigo:
+  `app-definition.ts`) para limpar o `localStorage` de quem está testando.
 - Se o curso **já tem alunos** no LMS, avise antes de aplicar e proponha a
   alternativa: manter as chaves antigas do store (sem renumerar o
   `suspendData`) ou aceitar o reset. Na dúvida sobre o status de
@@ -308,12 +326,14 @@ invalida o progresso salvo (ou o atribui à seção errada).
 1. Crie o `.vue` a partir de um modelo existente (catálogo ou seção
    parecida).
 2. Registre em `secoes.ts` na posição certa com a conclusão: `true` para
-   estática, derivada do `suspendData` para interativa (use os helpers do
-   projeto, ex.: `isSecaoConcluida.array`/`.tuple`), com `exibeTrava: true`
-   nas interativas.
-3. Interativa: adicione schema + initial no `store.ts` seguindo as
-   convenções do topo do arquivo (arrays pré-preenchidos, nunca vazios —
-   `.every` de `[]` é `true`).
+   estática, derivada do `suspendData` para interativa
+   (`isSecaoConcluida.bool/array/tuple`), com `exibeTrava: true` nas
+   interativas. Conteúdo que só aparece depois da interação fica na mesma
+   seção, em `AppCoreExibeApos`.
+3. Interativa: adicione o schema no `store.ts` no formato do componente
+   (o `?catalogo` mostra o schema de cada um), seguindo as convenções do
+   topo do arquivo (arrays pré-preenchidos, nunca vazios — `.every` de
+   `[]` é `true`).
 4. Textos no JSON, incluindo o título do menu.
 
 ### Remover
@@ -334,13 +354,16 @@ Confira se o texto das seções vizinhas não faz referência à ordem antiga
 
 Depois de aplicar os ajustes:
 
-1. Build (ex.: `npm run build`, que costuma incluir o type-check).
-2. Lint do projeto (ex.: `npm run lint`, `npm run lint:css`).
-3. JSON válido e sem chaves órfãs ou faltando (`grep` das chaves
-   alteradas).
-4. Se houver mudança visual, rode o app (skill `run` ou `npm run dev`) e
-   confira a seção no desktop e em largura de celular; para seções novas ou
-   renumeradas, verifique a trava e o menu de seções.
+1. `npm run typecheck && npm run lint && npm run lint:css && npm run build && npm run build:validacao`
+   (curso antigo: os scripts que existirem).
+2. JSON válido e sem chaves órfãs ou faltando (`grep` das chaves
+   alteradas e dos números antigos, se houve renumeração).
+3. Mudança visual ou estrutural: confira no navegador as seções tocadas
+   (desktop e celular; no tela a tela, a tela inteira sem corte, olhando).
+4. Chame o agente `verificar-curso` no curso, dizendo quais seções
+   mudaram (ele foca nelas e confere o resto por amostra, inclusive as
+   travas sem `?liberar`). Traga os problemas que ele apontar para o
+   retorno (seção 9) ou corrija os que forem do ajuste.
 
 ## 9. Retorno
 
